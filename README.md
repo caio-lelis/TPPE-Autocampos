@@ -1,6 +1,6 @@
 # TPPE - Autocampos
 
-![Auto Campos](../data/assets/logo.jpg)
+![Auto Campos](./data/assets/logo.jpg)
 
 ### Por que o projeto escolhido foi esse?
 
