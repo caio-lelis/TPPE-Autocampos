@@ -11,7 +11,11 @@ Versão antiga:
 Versão nova:
 ![Diagrama de Classes](../data/assets/uml/uml_nova.png)
 
-### Infraestrutura
+### Guia de Contribuição
+
+- [Guia de Contribuição](../CONTRIBUTING.md)
+
+## Infraestrutura
 
 - Docker Compose: [Docker Compose](../docker-compose.yml)
 - Dockerfile: [Dockerfile](../Dockerfile)
