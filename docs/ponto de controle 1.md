@@ -26,3 +26,6 @@ Versão nova:
 - Hello World(framework): [Hello World](../main.py)
 
 ### Testes
+
+- Service no Compose: [Service no Compose](../docker-compose.yml)
+- testes unitários: [testes unitários](../src/tests/unit/)
