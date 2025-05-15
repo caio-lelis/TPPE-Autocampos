@@ -43,7 +43,6 @@ class Carro(Veiculo):
         )
 
 if __name__ == "__main__":
-    # Criando um carro
     meu_carro = Carro(
         id=1,
         marca="Ford",
