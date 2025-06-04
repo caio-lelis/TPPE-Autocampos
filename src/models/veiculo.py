@@ -1,44 +1,32 @@
-# src/models/veiculo.py
+# app/models/veiculo.py
+from sqlalchemy import Column, Integer, String, Float, Enum, ForeignKey
+from sqlalchemy.orm import relationship
+from enum import Enum as PyEnum
+from .base import Base
 
-from enum import Enum
-from typing import Optional
-
-class TipoCombustivel(Enum):
-    """
-    Classe que representa os tipos de combustíveis disponíveis.
-    """
+class TipoCombustivel(PyEnum):
     GASOLINA = "Gasolina"
-    ETANOL = "Etanol"
+    ALCOOL = "Álcool"
     DIESEL = "Diesel"
     FLEX = "Flex"
-    
-class Veiculo:
-    """
-    Classe base Veiculo.
-    Representa um veículo com atributos como marca, modelo, cor, ano,
-    valor e tipo de combustível.
-    """
-    def __init__(
-        self,
-        id: int,
-        marca: str,
-        modelo: str,
-        cor: str,
-        ano: int,
-        valor: float,
-        combustivel: TipoCombustivel
-    ):
-        self.id = id
-        self.marca = marca
-        self.modelo = modelo
-        self.cor = cor
-        self.ano = ano
-        self.valor = valor
-        self.combustivel = combustivel
+    ELETRICO = "Elétrico"
+    HIBRIDO = "Híbrido"
 
-    def __str__(self) -> str:
-        return (
-            f"Veículo [ID: {self.id}, Marca: {self.marca}, Modelo: {self.modelo}, "
-            f"Cor: {self.cor}, Ano: {self.ano}, Valor: R${self.valor:.2f}, "
-            f"Combustível: {self.combustivel.value}]"
-        )
+class Veiculo(Base):
+    __tablename__ = 'veiculo'
+    
+    id_veiculo = Column(Integer, primary_key=True, index=True)
+    marca = Column(String(100), nullable=False)
+    modelo = Column(String(100), nullable=False)
+    cor = Column(String(50))
+    ano = Column(Integer)
+    valor = Column(Float)
+    tipo_combustivel = Column(Enum(TipoCombustivel))
+    
+    fk_Concessionaria_id_concessionaria = Column(Integer, ForeignKey('Concessionaria.id_concessionaria'))
+    fk_Comprador_fk_Pessoa_id = Column(Integer, ForeignKey('Comprador.fk_Pessoa_id'))
+    fk_Vendedor_fk_Pessoa_id = Column(Integer, ForeignKey('Vendedor.fk_Pessoa_id'))
+    
+    concessionaria = relationship("Concessionaria")
+    comprador = relationship("Comprador")
+    vendedor = relationship("Vendedor")

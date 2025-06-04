@@ -5,16 +5,16 @@ CREATE TABLE Concessionaria (
     endereco VARCHAR,
     cnpj VARCHAR,
     telefone VARCHAR,
-    id_concessionaria SERIAL PRIMARY KEY
+    id_concessionaria INTEGER PRIMARY KEY
 );
 
 CREATE TABLE Veiculo (
-    id_veiculo SERIAL PRIMARY KEY,
+    id_veiculo INTEGER PRIMARY KEY,
     marca VARCHAR,
     modelo VARCHAR,
     cor VARCHAR,
     ano INTEGER,
-    valor FLOAT,
+    valor DOUBLE,
     tipo_combustivel VARCHAR,
     fk_Concessionaria_id_concessionaria INTEGER,
     fk_Comprador_fk_Pessoa_id INTEGER,
@@ -30,8 +30,8 @@ CREATE TABLE Carro (
 );
 
 CREATE TABLE Caminhao (
-    carga FLOAT,
-    tamanho FLOAT,
+    carga DOUBLE,
+    tamanho DOUBLE,
     tipo_carroceria VARCHAR,
     num_eixos INTEGER,
     fk_Veiculo_id_veiculo INTEGER PRIMARY KEY
@@ -39,31 +39,31 @@ CREATE TABLE Caminhao (
 
 CREATE TABLE Moto (
     cilindradas INTEGER,
-    torque FLOAT,
-    peso FLOAT,
+    torque DOUBLE,
+    peso DOUBLE,
     tipo_freio VARCHAR,
     fk_Veiculo_id_veiculo INTEGER PRIMARY KEY
 );
 
 CREATE TABLE Pessoa (
-    id SERIAL PRIMARY KEY,
+    id INTEGER PRIMARY KEY,
     nome VARCHAR,
     cpf VARCHAR,
     idade INTEGER
 );
 
 CREATE TABLE Vendedor (
-    salario FLOAT,
+    salario DOUBLE,
     especialidade VARCHAR,
-    totalVendas FLOAT,
+    totalVendas DOUBLE,
     fk_Pessoa_id INTEGER PRIMARY KEY
 );
 
 CREATE TABLE Comprador (
     email VARCHAR,
-    renda_mensal FLOAT,
+    renda_mensal DOUBLE,
     profissao VARCHAR,
-    saldo_compra FLOAT,
+    saldo_compra DOUBLE,
     fk_Pessoa_id INTEGER PRIMARY KEY
 );
  
