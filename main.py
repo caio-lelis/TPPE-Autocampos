@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from sqlalchemy import create_engine, text  # Adicione text aqui
 from sqlalchemy.orm import sessionmaker
 from fastapi.middleware.cors import CORSMiddleware
-from src.api import concessionaria_endpoint
+from src.api import concessionaria_endpoint, pessoa_endpoint , vendedor_endpoint
 import os
 
 app = FastAPI()
@@ -30,6 +30,13 @@ app.include_router(
     concessionaria_endpoint.router, prefix="/api/v1", tags=["Concessionárias"]
 )
 
+app.include_router(
+    vendedor_endpoint.router , prefix="/api/v1" , tags=["Vendedores"]
+)
+
+app.include_router(
+    pessoa_endpoint.router , prefix="/api/v1" , tags=["Pessoas"]
+)
 
 if __name__ == "__main__":
     import uvicorn
