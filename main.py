@@ -1,32 +1,23 @@
+import os
+
 from fastapi import FastAPI
 from sqlalchemy import create_engine, text  # Adicione text aqui
 from sqlalchemy.orm import sessionmaker
-import os
+from src.api import (concessionaria_endpoint, vendedor_endpoint,
+                     comprador_endpoint, carro_endpoint ,
+                     caminhao_endpoint , moto_endpoint)
 
 app = FastAPI()
 
-DATABASE_URL = os.getenv("DATABASE_URL")
-engine = create_engine(DATABASE_URL)
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
+app.include_router(concessionaria_endpoint.router ,prefix="/api" ,  tags=["Concessionárias"])
+app.include_router(vendedor_endpoint.router ,prefix="/api" ,  tags=["Vendedores"])
+app.include_router(comprador_endpoint.router ,prefix="/api" ,  tags=["Compradores"])
+app.include_router(carro_endpoint.router , prefix="/api", tags=["Carros"])
+app.include_router(caminhao_endpoint.router , prefix="/api", tags=["Caminhões"])
+app.include_router(moto_endpoint.router, prefix="/api" , tags=["Motos"])
 
 @app.get("/")
 async def root():
     return {"message": "Hello World Autocampos!"}
 
-@app.get("/usuarios")
-def listar_usuarios():
-    db = SessionLocal()
-    try:
-        result = db.execute(text("SELECT * FROM usuarios"))
 
-        # Usando .mappings() para converter automaticamente
-        usuarios = [dict(row._mapping) for row in result]
-
-        return {"usuarios": usuarios}
-    
-    except Exception as e:
-        return {"error": str(e)}
-    
-    finally:
-        db.close()
