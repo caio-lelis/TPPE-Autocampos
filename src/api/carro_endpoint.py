@@ -1,3 +1,4 @@
+from typing import List
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from src.core.session import SessionLocal
@@ -27,3 +28,8 @@ def buscar_carro(id_carro: int, db: Session = Depends(get_db)):
     if not carro:
         raise HTTPException(status_code=404, detail="Carro não encontrado")
     return carro
+
+@router.get("/get_by_concessionaria/{id_concessionaria}", response_model=List[CarroRead])
+def get_carro_by_concessionaria(id_concessionaria: int , db: Session = Depends(get_db)):
+    carros_concessionaria = carro_service.get_carro_by_concessionaria(db , id_concessionaria)
+    return carros_concessionaria
