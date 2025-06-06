@@ -8,6 +8,7 @@ class CaminhaoBase(BaseModel):
     num_eixos: int
     marca: str
     modelo: str
+    status_caminhao: bool
     cor: str
     ano: int
     valor: float

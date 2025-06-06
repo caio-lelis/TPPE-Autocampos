@@ -6,6 +6,7 @@ class CarroBase(BaseModel):
     vidros_eletricos: bool
     camera_re: bool
     airbags: bool
+    status_carro: bool
     marca: str
     modelo: str
     cor: str

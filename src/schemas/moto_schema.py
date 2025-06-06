@@ -9,6 +9,7 @@ class MotoBase(BaseModel):
     marca: str
     modelo: str
     cor: str
+    status_moto: bool
     ano: int
     valor: float
     tipo_combustivel: str

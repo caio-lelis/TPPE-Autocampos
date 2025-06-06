@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Double, ForeignKey
+from sqlalchemy import Column, Integer, String, Double, ForeignKey, Boolean
 from src.core.session import Base
 
 class Moto(Base):
@@ -11,6 +11,7 @@ class Moto(Base):
     tipo_freio = Column(String(50))
     marca = Column(String(100))
     modelo = Column(String(100))
+    status_moto = Column(Boolean)
     cor = Column(String(50))
     ano = Column(Integer)
     valor = Column(Double)

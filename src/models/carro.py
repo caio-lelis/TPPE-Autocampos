@@ -8,6 +8,7 @@ class Carro(Base):
     num_portas = Column(Integer)
     vidros_eletricos = Column(Boolean)
     camera_re = Column(Boolean)
+    status_carro = Column(Boolean)
     airbags = Column(Boolean)
     marca = Column(String(100))
     modelo = Column(String(100))

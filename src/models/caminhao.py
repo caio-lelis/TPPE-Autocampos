@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Float, Double, ForeignKey
+from sqlalchemy import Column, Integer, String, Float, Double, ForeignKey, Boolean
 from src.core.session import Base
 
 class Caminhao(Base):
@@ -8,6 +8,7 @@ class Caminhao(Base):
     carga = Column(Float)
     tamanho = Column(Float)
     tipo_carroceria = Column(String(100))
+    status_caminhao = Column(Boolean)
     num_eixos = Column(Integer)
     marca = Column(String(100))
     modelo = Column(String(100))
