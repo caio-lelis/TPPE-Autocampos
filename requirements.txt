@@ -7,3 +7,8 @@ httpx==0.23.0
 pytest==7.0.1
 pytest-cov==3.0.0
 pytest-asyncio==0.20.3
+
+
+# \l -> listar bancos
+# \c postgres -> selecionar o banco postgres
+# \dt -> listar tabelas

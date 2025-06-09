@@ -14,16 +14,16 @@ def get_db():
         db.close()
 
 @router.post("/", response_model=CaminhaoRead)
-def criar_caminhao(caminhao: CaminhaoCreate, db: Session = Depends(get_db)):
-    return caminhao_service.criar_caminhao(db, caminhao)
+def create_caminhao(caminhao: CaminhaoCreate, db: Session = Depends(get_db)):
+    return caminhao_service.create_caminhao(db, caminhao)
 
 @router.get("/", response_model=list[CaminhaoRead])
-def listar_caminhoes(db: Session = Depends(get_db)):
-    return caminhao_service.listar_caminhoes(db)
+def get_all_caminhoes(db: Session = Depends(get_db)):
+    return caminhao_service.get_all_caminhoes(db)
 
 @router.get("/{id_caminhao}", response_model=CaminhaoRead)
 def buscar_caminhao(id_caminhao: int, db: Session = Depends(get_db)):
-    caminhao = caminhao_service.buscar_caminhao_por_id(db, id_caminhao)
+    caminhao = caminhao_service.get_caminhao_by_id(db, id_caminhao)
     if not caminhao:
         raise HTTPException(status_code=404, detail="Caminhão não encontrado")
     return caminhao

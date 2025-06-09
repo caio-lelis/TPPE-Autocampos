@@ -15,17 +15,17 @@ def get_db():
     finally:
         db.close()
 
-@router.post("/", response_model=ConcessionariaRead)
-def criar_concessionaria(concessionaria: ConcessionariaCreate, db: Session = Depends(get_db)):
-    return concessionaria_service.criar_concessionaria(db, concessionaria)
+@router.post("/create", response_model=ConcessionariaRead)
+def create_concessionaria(concessionaria: ConcessionariaCreate, db: Session = Depends(get_db)):
+    return concessionaria_service.create_concessionaria(db, concessionaria)
 
-@router.get("/", response_model=list[ConcessionariaRead])
-def listar_concessionarias(db: Session = Depends(get_db)):
-    return concessionaria_service.listar_concessionarias(db)
+@router.get("/get", response_model=list[ConcessionariaRead])
+def get_all_concessionarias(db: Session = Depends(get_db)):
+    return concessionaria_service.get_all_concessionarias(db)
 
-@router.get("/{id_concessionaria}", response_model=ConcessionariaRead)
+@router.get("/get_by_id/{id_concessionaria}", response_model=ConcessionariaRead)
 def buscar_concessionaria(id_concessionaria: int, db: Session = Depends(get_db)):
-    db_concessionaria = concessionaria_service.buscar_concessionaria_por_id(db, id_concessionaria)
+    db_concessionaria = concessionaria_service.get_concessionaria_by_id(db, id_concessionaria)
     if not db_concessionaria:
         raise HTTPException(status_code=404, detail="Concessionária não encontrada")
     return db_concessionaria

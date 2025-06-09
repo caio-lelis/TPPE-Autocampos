@@ -16,16 +16,16 @@ def get_db():
         db.close()
 
 @router.post("/", response_model=CompradorRead)
-def criar_comprador(comprador: CompradorCreate, db: Session = Depends(get_db)):
-    return comprador_service.criar_comprador(db, comprador)
+def create_comprador(comprador: CompradorCreate, db: Session = Depends(get_db)):
+    return comprador_service.create_comprador(db, comprador)
 
 @router.get("/", response_model=list[CompradorRead])
-def listar_compradores(db: Session = Depends(get_db)):
-    return comprador_service.listar_compradores(db)
+def get_all_compradores(db: Session = Depends(get_db)):
+    return comprador_service.get_all_compradores(db)
 
 @router.get("/{id_comprador}/{id_pessoa}", response_model=CompradorRead)
 def buscar_comprador(id_comprador: int, db: Session = Depends(get_db)):
-    comprador = comprador_service.buscar_comprador_por_id(db, id_comprador)
+    comprador = comprador_service.get_comprador_by_id(db, id_comprador)
     if not comprador:
         raise HTTPException(status_code=404, detail="Comprador não encontrado")
     return comprador
