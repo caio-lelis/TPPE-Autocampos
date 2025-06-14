@@ -9,3 +9,4 @@ class Concessionaria(Base):
     endereco = Column(String(255))
     cnpj = Column(String(20))
     telefone = Column(String(20))
+    

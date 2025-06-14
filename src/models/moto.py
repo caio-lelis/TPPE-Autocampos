@@ -1,22 +1,20 @@
-from sqlalchemy import Column, Integer, String, Double, ForeignKey, Boolean
+from sqlalchemy import Column, Integer, String, Numeric, Boolean
 from src.core.session import Base
 
 class Moto(Base):
-    __tablename__ = "moto"
+    __tablename__ = "motos"
 
-    id_moto = Column(Integer, primary_key=True, autoincrement=True)
-    cilindradas = Column(Integer)
-    torque = Column(Double)
-    peso = Column(Double)
-    tipo_freio = Column(String(50))
-    marca = Column(String(100))
-    modelo = Column(String(100))
-    status_moto = Column(Boolean)
-    cor = Column(String(50))
-    ano = Column(Integer)
-    valor = Column(Double)
+    id = Column(Integer, primary_key=True, index=True)
+    modelo = Column(String(255), nullable=False)
+    marca = Column(String(255), nullable=False)
+    ano = Column(Integer, nullable=False)
+    cor = Column(String(255))
     tipo_combustivel = Column(String(50))
-
-    fk_concessionaria_id_concessionaria = Column(Integer, ForeignKey("concessionaria.id_concessionaria", ondelete="SET NULL"))
-    fk_comprador_id_comprador = Column(Integer, ForeignKey("comprador.id_comprador", ondelete="RESTRICT"), nullable=True)
-    fk_vendedor_id_vendedor = Column(Integer, ForeignKey("vendedor.id_vendedor", ondelete="CASCADE"), nullable=True)
+    preco = Column(Numeric(10, 2), nullable=False)
+    revisado = Column(Boolean, default=False)
+    disponivel = Column(Boolean, default=True)
+    freio_dianteiro = Column(String(50))
+    freio_traseiro = Column(String(50))
+    estilo = Column(String(50))
+    cilindradas = Column(Integer)
+    velocidade_max = Column(Integer)

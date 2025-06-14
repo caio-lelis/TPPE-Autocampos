@@ -1,27 +1,27 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import Optional
+from decimal import Decimal
 
 class MotoBase(BaseModel):
-    cilindradas: int
-    torque: float
-    peso: float
-    tipo_freio: str
-    marca: str
     modelo: str
-    cor: str
-    status_moto: bool
-    ano: int
-    valor: float
-    tipo_combustivel: str
-    fk_concessionaria_id_concessionaria: Optional[int]
-    fk_comprador_id_comprador: Optional[int] = None
-    fk_vendedor_id_vendedor: Optional[int] = None
+    marca: str
+    ano: int = Field(..., gt=1900, lt=2100)
+    cor: Optional[str] = None
+    tipo_combustivel: Optional[str] = None
+    preco: Decimal = Field(..., gt=0)
+    revisado: Optional[bool] = False
+    disponivel: Optional[bool] = True
+    freio_dianteiro: Optional[str] = None
+    freio_traseiro: Optional[str] = None
+    estilo: Optional[str] = None
+    cilindradas: Optional[int] = Field(None, gt=0)
+    velocidade_max: Optional[int] = Field(None, gt=0)
 
 class MotoCreate(MotoBase):
     pass
 
 class MotoRead(MotoBase):
-    id_moto: int
+    id: int
 
     class Config:
         orm_mode = True

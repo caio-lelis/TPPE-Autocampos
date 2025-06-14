@@ -1,104 +1,123 @@
+-- Remove tabelas existentes para evitar conflitos ao executar o script novamente.
+-- A opção CASCADE remove automaticamente objetos dependentes (como views ou chaves estrangeiras).
+DROP TABLE IF EXISTS interesses, vendas, anuncios, carros, motos, admins, funcionarios, usuarios, clientes CASCADE;
 
-CREATE TABLE Concessionaria (
-    id_concessionaria SERIAL PRIMARY KEY,
-    nome VARCHAR(255),
-    endereco VARCHAR(255),
-    cnpj VARCHAR(20),
-    telefone VARCHAR(20)
+-- Tabela Central de Usuários do Sistema
+-- Armazena dados de login e informações básicas para todos os usuários internos.
+CREATE TABLE usuarios (
+    id            SERIAL PRIMARY KEY,
+    nome          TEXT NOT NULL,
+    cpf           VARCHAR(11) NOT NULL UNIQUE,
+    email         TEXT NOT NULL UNIQUE,
+    senha         TEXT NOT NULL -- Em um ambiente real, a senha deve ser armazenada como um hash.
 );
 
-CREATE TABLE Vendedor (
-    id_vendedor SERIAL,
-    nome VARCHAR(255),
-    cpf VARCHAR(14),
-    idade INTEGER,
-    salario DOUBLE PRECISION,
-    especialidade VARCHAR(100),
-    total_vendas DOUBLE PRECISION,
-    PRIMARY KEY (id_vendedor)
+-- Tabela de Funcionários
+-- Contém informações específicas de funcionários. Um funcionário é um tipo de usuário.
+CREATE TABLE funcionarios (
+    id                    SERIAL PRIMARY KEY,
+    usuario_id            INTEGER NOT NULL UNIQUE REFERENCES usuarios(id) ON DELETE CASCADE,
+    rendimento_mensal     NUMERIC(10, 2) NOT NULL
 );
 
-CREATE TABLE Comprador (
-    id_comprador SERIAL,
-    nome VARCHAR(255),
-    cpf VARCHAR(14),
-    idade INTEGER,
-    email VARCHAR(255),
-    renda_mensal DOUBLE PRECISION,
-    profissao VARCHAR(100),
-    saldo_compra DOUBLE PRECISION,
-    PRIMARY KEY (id_comprador)
+-- Tabela de Administradores
+-- Designa quais usuários possuem privilégios de administrador. Um admin também é um tipo de usuário.
+CREATE TABLE admins (
+    id            SERIAL PRIMARY KEY,
+    usuario_id    INTEGER NOT NULL UNIQUE REFERENCES usuarios(id) ON DELETE CASCADE,
+    is_admin      BOOLEAN DEFAULT FALSE
 );
 
-CREATE TABLE Carro (
-    id_carro SERIAL PRIMARY KEY,
-    num_portas INTEGER,
-    vidros_eletricos BOOLEAN,
-    camera_re BOOLEAN,
-    airbags BOOLEAN,
-    marca VARCHAR(100),
-    modelo VARCHAR(100),
-    cor VARCHAR(50),
-    ano INTEGER,
-    valor DOUBLE PRECISION,
-    tipo_combustivel VARCHAR(50),
-    status_carro BOOLEAN,
-    fk_Concessionaria_id_concessionaria INTEGER,
-    fk_Comprador_id_comprador INTEGER NULL,
-    fk_Vendedor_id_vendedor INTEGER NULL,
-    CONSTRAINT fk_carro_concessionaria FOREIGN KEY (fk_Concessionaria_id_concessionaria)
-        REFERENCES Concessionaria (id_concessionaria) ON DELETE SET NULL,
-    CONSTRAINT fk_carro_comprador FOREIGN KEY (fk_Comprador_id_comprador)
-        REFERENCES Comprador (id_comprador) ON DELETE RESTRICT,
-    CONSTRAINT fk_carro_vendedor FOREIGN KEY (fk_Vendedor_id_vendedor)
-        REFERENCES Vendedor (id_vendedor) ON DELETE CASCADE
+-- Tabela de Clientes
+-- Armazena informações de contato de clientes interessados ou que realizaram compras.
+CREATE TABLE clientes (
+    id            SERIAL PRIMARY KEY,
+    nome          TEXT NOT NULL,
+    cpf           VARCHAR(11) NOT NULL UNIQUE,
+    email         TEXT UNIQUE,
+    telefone      VARCHAR(20),
+    endereco      TEXT
+);
+
+-- Tabela para Carros (agora inclui atributos de 'veiculos')
+CREATE TABLE carros (
+    id                    SERIAL PRIMARY KEY,
+    modelo                TEXT NOT NULL,
+    marca                 TEXT NOT NULL,
+    ano                   INTEGER NOT NULL,
+    cor                   TEXT,
+    tipo_combustivel      VARCHAR(50),
+    preco                 NUMERIC(10, 2) NOT NULL,
+    revisado              BOOLEAN DEFAULT FALSE,
+    disponivel            BOOLEAN DEFAULT TRUE,
+    tipo_direcao          VARCHAR(50),
+    tracao                VARCHAR(10),
+    consumo_cidade        NUMERIC(4, 2),
+    airbag                BOOLEAN DEFAULT FALSE,
+    ar_condicionado       BOOLEAN DEFAULT FALSE
+);
+
+-- Tabela para Motos (agora inclui atributos de 'veiculos')
+CREATE TABLE motos (
+    id                    SERIAL PRIMARY KEY,
+    modelo                TEXT NOT NULL,
+    marca                 TEXT NOT NULL,
+    ano                   INTEGER NOT NULL,
+    cor                   TEXT,
+    tipo_combustivel      VARCHAR(50),
+    preco                 NUMERIC(10, 2) NOT NULL,
+    revisado              BOOLEAN DEFAULT FALSE,
+    disponivel            BOOLEAN DEFAULT TRUE,
+    freio_dianteiro       VARCHAR(50),
+    freio_traseiro        VARCHAR(50),
+    estilo                VARCHAR(50),
+    cilindradas           INTEGER,
+    velocidade_max        INTEGER
+);
+
+-- Tabela de Anúncios
+-- Um anúncio agora pode se referir a um carro OU uma moto, mas não a ambos.
+CREATE TABLE anuncios (
+    id                    SERIAL PRIMARY KEY,
+    funcionario_id        INTEGER NOT NULL REFERENCES funcionarios(id),
+    carro_id              INTEGER UNIQUE REFERENCES carros(id) ON DELETE CASCADE,
+    moto_id               INTEGER UNIQUE REFERENCES motos(id) ON DELETE CASCADE,
+    data_publicacao       DATE NOT NULL DEFAULT CURRENT_DATE,
+    imagem1_url           TEXT,
+    imagem2_url           TEXT,
+    imagem3_url           TEXT,
+    -- Restrição para garantir que apenas um dos IDs de veículo seja preenchido
+    CONSTRAINT chk_carro_moto_anuncio CHECK ((carro_id IS NOT NULL AND moto_id IS NULL) OR (carro_id IS NULL AND moto_id IS NOT NULL))
+);
+
+-- Tabela de Vendas
+-- Registra a venda de um veículo, que deve ser realizada por um funcionário.
+-- Agora tem chaves estrangeiras diretas para carros e motos.
+CREATE TABLE vendas (
+    id                    SERIAL PRIMARY KEY,
+    carro_id              INTEGER UNIQUE REFERENCES carros(id) ON DELETE RESTRICT,
+    moto_id               INTEGER UNIQUE REFERENCES motos(id) ON DELETE RESTRICT,
+    cliente_id            INTEGER NOT NULL REFERENCES clientes(id) ON DELETE RESTRICT,
+    funcionario_id        INTEGER NOT NULL REFERENCES funcionarios(id) ON DELETE RESTRICT,
+    data_venda            DATE NOT NULL DEFAULT CURRENT_DATE,
+    valor_final           NUMERIC(10, 2) NOT NULL,
+    comissao_venda        NUMERIC(10, 2),
+    -- Restrição para garantir que apenas um dos IDs de veículo seja preenchido
+    CONSTRAINT chk_carro_moto_venda CHECK ((carro_id IS NOT NULL AND moto_id IS NULL) OR (carro_id IS NULL AND moto_id IS NOT NULL))
 );
 
 
-CREATE TABLE Caminhao (
-    id_caminhao SERIAL PRIMARY KEY,
-    carga FLOAT,
-    tamanho FLOAT,
-    tipo_carroceria VARCHAR(100),
-    num_eixos INTEGER,
-    marca VARCHAR(100),
-    modelo VARCHAR(100),
-    cor VARCHAR(50),
-    ano INTEGER,
-    valor DOUBLE PRECISION,
-    tipo_combustivel VARCHAR(50),
-    status_caminhao BOOLEAN,
-    fk_Concessionaria_id_concessionaria INTEGER,
-    fk_Comprador_id_comprador INTEGER NULL,
-    fk_Vendedor_id_vendedor INTEGER NULL,
-    CONSTRAINT fk_caminhao_concessionaria FOREIGN KEY (fk_Concessionaria_id_concessionaria)
-        REFERENCES Concessionaria (id_concessionaria) ON DELETE SET NULL,
-    CONSTRAINT fk_caminhao_comprador FOREIGN KEY (fk_Comprador_id_comprador)
-        REFERENCES Comprador (id_comprador) ON DELETE RESTRICT,
-    CONSTRAINT fk_caminhao_vendedor FOREIGN KEY (fk_Vendedor_id_vendedor)
-        REFERENCES Vendedor (id_vendedor) ON DELETE CASCADE
-);
-
-CREATE TABLE Moto (
-    id_moto SERIAL PRIMARY KEY,
-    cilindradas INTEGER,
-    torque DOUBLE PRECISION,
-    peso DOUBLE PRECISION,
-    tipo_freio VARCHAR(50),
-    marca VARCHAR(100),
-    modelo VARCHAR(100),
-    cor VARCHAR(50),
-    ano INTEGER,
-    valor DOUBLE PRECISION,
-    tipo_combustivel VARCHAR(50),
-    status_moto BOOLEAN,
-    fk_Concessionaria_id_concessionaria INTEGER,
-    fk_Comprador_id_comprador INTEGER NULL,
-    fk_Vendedor_id_vendedor INTEGER NULL,
-    CONSTRAINT fk_moto_concessionaria FOREIGN KEY (fk_Concessionaria_id_concessionaria)
-        REFERENCES Concessionaria (id_concessionaria) ON DELETE SET NULL,
-    CONSTRAINT fk_moto_comprador FOREIGN KEY (fk_Comprador_id_comprador)
-        REFERENCES Comprador (id_comprador) ON DELETE RESTRICT,
-    CONSTRAINT fk_moto_vendedor FOREIGN KEY (fk_Vendedor_id_vendedor)
-        REFERENCES Vendedor (id_vendedor) ON DELETE CASCADE
+-- Tabela de Interesses
+-- Registra o interesse de um cliente em um veículo específico.
+CREATE TABLE interesses (
+    id                    SERIAL PRIMARY KEY,
+    cliente_id            INTEGER NOT NULL REFERENCES clientes(id) ON DELETE CASCADE,
+    carro_id              INTEGER REFERENCES carros(id) ON DELETE CASCADE,
+    moto_id               INTEGER REFERENCES motos(id) ON DELETE CASCADE,
+    data_visita           DATE,
+    test_drive   BOOLEAN DEFAULT FALSE,
+    -- Restrição para garantir que apenas um dos IDs de veículo seja preenchido
+    CONSTRAINT chk_carro_moto_interesse CHECK ((carro_id IS NOT NULL AND moto_id IS NULL) OR (carro_id IS NULL AND moto_id IS NOT NULL)),
+    -- Garante que um cliente não registre interesse duas vezes no mesmo carro ou moto
+    UNIQUE (cliente_id, carro_id, moto_id)
 );

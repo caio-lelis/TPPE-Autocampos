@@ -1,22 +1,20 @@
-from sqlalchemy import Column, Integer, String, Boolean, Double, ForeignKey
+from sqlalchemy import Column, Integer, String, Numeric, Boolean
 from src.core.session import Base
 
 class Carro(Base):
-    __tablename__ = "carro"
+    __tablename__ = "carros"
 
-    id_carro = Column(Integer, primary_key=True, autoincrement=True)
-    num_portas = Column(Integer)
-    vidros_eletricos = Column(Boolean)
-    camera_re = Column(Boolean)
-    status_carro = Column(Boolean)
-    airbags = Column(Boolean)
-    marca = Column(String(100))
-    modelo = Column(String(100))
-    cor = Column(String(50))
-    ano = Column(Integer)
-    valor = Column(Double)
+    id = Column(Integer, primary_key=True, index=True)
+    modelo = Column(String(255), nullable=False)
+    marca = Column(String(255), nullable=False)
+    ano = Column(Integer, nullable=False)
+    cor = Column(String(255))
     tipo_combustivel = Column(String(50))
-
-    fk_concessionaria_id_concessionaria = Column(Integer, ForeignKey("concessionaria.id_concessionaria", ondelete="SET NULL"))
-    fk_comprador_id_comprador = Column(Integer, ForeignKey("comprador.id_comprador", ondelete="RESTRICT"), nullable=True)
-    fk_vendedor_id_vendedor = Column(Integer, ForeignKey("vendedor.id_vendedor", ondelete="CASCADE"), nullable=True)
+    preco = Column(Numeric(10, 2), nullable=False)
+    revisado = Column(Boolean, default=False)
+    disponivel = Column(Boolean, default=True)
+    tipo_direcao = Column(String(50))
+    tracao = Column(String(10))
+    consumo_cidade = Column(Numeric(4, 2))
+    airbag = Column(Boolean, default=False)
+    ar_condicionado = Column(Boolean, default=False)
