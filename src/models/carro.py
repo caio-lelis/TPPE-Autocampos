@@ -1,60 +1,20 @@
-# src/models/carro.py
+from sqlalchemy import Column, Integer, String, Numeric, Boolean
+from src.core.session import Base
 
-from src.models.veiculo import Veiculo
-from src.models.veiculo import TipoCombustivel
-# from veiculo import Veiculo
-# from veiculo import TipoCombustivel
-from typing import Optional
+class Carro(Base):
+    __tablename__ = "carros"
 
-
-class Carro(Veiculo):
-    """
-    Classe Carro que herda de Veiculo.
-    Representa um carro com atributos adicionais como número de portas,
-    se possui vidro elétrico, airbag e câmera de ré.
-    """
-    def __init__(
-        self,
-        id: int,
-        marca: str,
-        modelo: str,
-        cor: str,
-        ano: int,
-        valor: float,
-        combustivel: TipoCombustivel,
-        num_portas: int,
-        vidro_eletrico: bool,
-        airbag: bool,
-        camera_re: bool
-    ):
-        super().__init__(id, marca, modelo, cor, ano, valor, combustivel)
-        
-        self.num_portas = num_portas
-        self.vidro_eletrico = vidro_eletrico
-        self.airbag = airbag
-        self.camera_re = camera_re
-
-    def __str__(self) -> str:
-        veiculo_info = super().__str__().replace("Veículo", "Carro")
-        return (
-            f"{veiculo_info}, "
-            f"Portas: {self.num_portas}, Vidro Elétrico: {'Sim' if self.vidro_eletrico else 'Não'}, "
-            f"Airbag: {'Sim' if self.airbag else 'Não'}, Câmera Ré: {'Sim' if self.camera_re else 'Não'}"
-        )
-
-if __name__ == "__main__":
-    meu_carro = Carro(
-        id=1,
-        marca="Ford",
-        modelo="Fiesta",
-        cor="Prata",
-        ano=2020,
-        valor=45000.00,
-        combustivel=TipoCombustivel.FLEX,
-        num_portas=4,
-        vidro_eletrico=True,
-        airbag=True,
-        camera_re=False
-    )
-    
-    print(meu_carro)
+    id = Column(Integer, primary_key=True, index=True)
+    modelo = Column(String(255), nullable=False)
+    marca = Column(String(255), nullable=False)
+    ano = Column(Integer, nullable=False)
+    cor = Column(String(255))
+    tipo_combustivel = Column(String(50))
+    preco = Column(Numeric(10, 2), nullable=False)
+    revisado = Column(Boolean, default=False)
+    disponivel = Column(Boolean, default=True)
+    tipo_direcao = Column(String(50))
+    tracao = Column(String(10))
+    consumo_cidade = Column(Numeric(4, 2))
+    airbag = Column(Boolean, default=False)
+    ar_condicionado = Column(Boolean, default=False)
