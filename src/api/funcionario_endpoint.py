@@ -1,9 +1,11 @@
 from fastapi import APIRouter, Depends, HTTPException
+from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 from src.core.session import SessionLocal
 from src.schemas.funcionario_schema import FuncionarioCreate, FuncionarioRead
 from src.services.funcionario_service import funcionario_service
 from typing import List
+from datetime import date
 
 router = APIRouter(prefix="/funcionarios", tags=["Funcionários"])
 
@@ -45,3 +47,44 @@ def delete_funcionario_api(funcionario_id: int, db: Session = Depends(get_db)):
     if not db_funcionario:
         raise HTTPException(status_code=404, detail="Funcionário não encontrado.")
     return db_funcionario
+
+@router.get("/{funcionario_id}/dashboard")
+def get_dashboard_funcionario(
+    funcionario_id: int,
+    db: Session = Depends(get_db),
+):
+    """
+    Endpoint para obter dados de dashboard do funcionário:
+    - Total de carros vendidos
+    - Total de comissões
+    - Gráfico em base64
+    """
+    try:
+        # Obter dados consolidados
+        dados = funcionario_service.get_dashboard_vendas(
+            db, 
+            funcionario_id=funcionario_id,
+        )
+        
+        if dados["total_carros_vendidos"] == 0:
+            raise HTTPException(
+                status_code=404,
+                detail="Nenhuma venda encontrada para o período selecionado."
+            )
+
+        # Gerar gráfico
+        grafico_base64 = funcionario_service.gerar_grafico_vendas(dados)
+
+        return JSONResponse(content={
+            "funcionario_id": funcionario_id,
+            "metricas": dados,
+            "grafico": f"data:image/png;base64,{grafico_base64}"
+        })
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Erro ao gerar dashboard: {str(e)}"
+        )

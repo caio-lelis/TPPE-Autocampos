@@ -2,9 +2,11 @@ from sqlalchemy.orm import Session
 from src.schemas.venda_schema import VendaCreate
 from src.models.venda import Venda as VendaModel
 from typing import List
+from src.models.funcionario import Funcionario
 
 class VendaService:
     def create_venda(self, db: Session, venda: VendaCreate) -> VendaModel:
+
         db_venda = VendaModel(
             carro_id=venda.carro_id,
             moto_id=venda.moto_id,
@@ -15,6 +17,12 @@ class VendaService:
             comissao_venda=venda.comissao_venda
         )
         db.add(db_venda)
+
+        db_funcionario = db.query(Funcionario).filter(Funcionario.id == venda.funcionario_id).first()
+
+        if db_funcionario:
+            db_funcionario.rendimento_mensal += venda.comissao_venda
+
         db.commit()
         db.refresh(db_venda)
         return db_venda

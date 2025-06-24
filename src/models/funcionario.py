@@ -9,4 +9,4 @@ class Funcionario(Base):
     usuario_id = Column(Integer, ForeignKey("usuarios.id", ondelete="CASCADE"), unique=True, nullable=False)
     rendimento_mensal = Column(Numeric(10, 2), nullable=False)
 
-    usuario = relationship("Usuario") # Define o relacionamento com a tabela de usuários
+    usuario = relationship("Usuario")
