@@ -1,8 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from src.core.session import SessionLocal
+from src.schemas.moto_schema import MotoRead
 from src.schemas.anuncio_schema import AnuncioCreate, AnuncioRead
 from src.services.anuncio_service import anuncio_service
+from src.schemas.carro_schema import CarroRead
 from typing import List
 
 router = APIRouter(prefix="/anuncios", tags=["Anúncios"])
@@ -51,3 +53,18 @@ def delete_anuncio_api(anuncio_id: int, db: Session = Depends(get_db)):
     if not db_anuncio:
         raise HTTPException(status_code=404, detail="Anúncio não encontrado.")
     return db_anuncio
+
+@router.get("/carros-anunciados/marca/{marca}", response_model=List[CarroRead])
+def get_carros_anunciados_por_marca(marca: str, db: Session = Depends(get_db)):
+    carros = anuncio_service.get_carros_anunciados_por_marca(db, marca)
+    if not carros:
+        raise HTTPException(status_code=404, detail="Nenhum carro anunciado encontrado para esta marca.")
+    return carros
+
+
+@router.get("/motos-anunciadas/marca/{marca}", response_model=List[MotoRead])
+def get_motos_anunciadas_por_marca(marca: str, db: Session = Depends(get_db)):
+    motos = anuncio_service.get_motos_anunciadas_por_marca(db, marca)
+    if not motos:
+        raise HTTPException(status_code=404, detail="Nenhuma moto anunciada encontrada para esta marca.")
+    return motos
