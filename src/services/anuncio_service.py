@@ -2,7 +2,9 @@ from sqlalchemy.orm import Session
 from src.schemas.anuncio_schema import AnuncioCreate
 from src.models.anuncio import Anuncio as AnuncioModel
 from typing import List
-
+from src.models.moto import Moto
+from src.models.carro import Carro
+from src.models.anuncio import Anuncio
 class AnuncioService:
     def create_anuncio(self, db: Session, anuncio: AnuncioCreate) -> AnuncioModel:
         db_anuncio = AnuncioModel(
@@ -55,4 +57,24 @@ class AnuncioService:
         db.commit()
         return db_anuncio
 
+
+    def get_carros_anunciados_por_marca(self, db: Session, marca: str) -> List[Carro]:
+        # Fazer join Anuncio -> Carro via carro_id, filtrar marca, garantir carro_id não nulo
+        query = (
+            db.query(Carro)
+            .join(Anuncio, Carro.id == Anuncio.carro_id)
+            .filter(Carro.marca.ilike(f"%{marca}%"))
+            .filter(Anuncio.carro_id != None)  # só anúncios com carro
+            .all()
+        )
+        return query
+
+    def get_motos_anunciadas_por_marca(self, db: Session, marca: str) -> List[Moto]:
+        return (
+            db.query(Moto)
+            .join(Anuncio, Moto.id == Anuncio.moto_id)
+            .filter(Moto.marca.ilike(f"%{marca}%"))
+            .filter(Anuncio.moto_id != None)
+            .all()
+        )
 anuncio_service = AnuncioService()

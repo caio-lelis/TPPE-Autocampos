@@ -1,0 +1,37 @@
+name: Build and Lint
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-and-lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install Pylint
+        run: pip install pylint
+
+      - name: Run Docker Compose Build
+        run: docker compose up --build -d
+
+      - name: Run Pylint
+        id: lint
+        run: |
+          SCORE=$(pylint src/ --rcfile=pylintrc | grep "Your code has been rated at" | awk '{print $7}' | cut -d'/' -f1)
+          echo "Pylint score: $SCORE"
+          SCORE_NUM=$(printf "%.0f\n" "$(echo "$SCORE >= 5.0" | bc)")
+          if [ "$SCORE_NUM" -ne 1 ]; then
+            echo "Pylint score is less than 5. Failing."
+            exit 1
+          fi
