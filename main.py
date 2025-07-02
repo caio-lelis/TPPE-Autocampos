@@ -3,9 +3,17 @@ import os
 from fastapi import FastAPI
 from sqlalchemy import create_engine, text  # Adicione text aqui
 from sqlalchemy.orm import sessionmaker
-from src.api import (usuario_endpoint , admin_endpoint, cliente_endpoint,
-                     funcionario_endpoint,moto_endpoint, anuncio_endpoint
-                      , carro_endpoint,interesse_endpoint , venda_endpoint )
+
+from src.admin import admin_endpoint
+from src.anuncio import anuncio_endpoint
+from src.venda import venda_endpoint 
+from src.carro import carro_endpoint
+from src.cliente import cliente_endpoint
+from src.funcionario import funcionario_endpoint
+from src.interesse import interesse_endpoint
+from src.moto import moto_endpoint
+from src.usuario import usuario_endpoint
+
 app = FastAPI()
 
 
