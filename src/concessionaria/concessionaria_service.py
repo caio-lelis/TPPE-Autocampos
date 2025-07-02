@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from src.concessionaria.concessionaria import Concessionaria
+from src.concessionaria.concessionaria_model import Concessionaria
 from src.concessionaria.concessionaria_schema import ConcessionariaCreate
 
 def create_concessionaria(db: Session, concessionaria: ConcessionariaCreate):

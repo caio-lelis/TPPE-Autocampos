@@ -1,10 +1,10 @@
 from sqlalchemy.orm import Session
 from src.anuncio.anuncio_schema import AnuncioCreate
-from src.anuncio.anuncio import Anuncio as AnuncioModel
+from src.anuncio.anuncio_model import Anuncio as AnuncioModel
 from typing import List
-from src.moto.moto import Moto
-from src.carro.carro import Carro
-from src.anuncio.anuncio import Anuncio
+from src.moto.moto_model import Moto
+from src.carro.carro_model import Carro
+from src.anuncio.anuncio_model import Anuncio
 class AnuncioService:
     def create_anuncio(self, db: Session, anuncio: AnuncioCreate) -> AnuncioModel:
         db_anuncio = AnuncioModel(

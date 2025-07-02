@@ -1,8 +1,8 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import func, and_
-from src.venda.venda import Venda
+from src.venda.venda_model import Venda
 from src.funcionario.funcionario_schema import FuncionarioCreate
-from src.funcionario.funcionario import Funcionario as FuncionarioModel
+from src.funcionario.funcionario_model import Funcionario as FuncionarioModel
 from typing import List , Dict , Optional
 import matplotlib.pyplot as plt
 import io

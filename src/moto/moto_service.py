@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from src.moto.moto_schema import MotoCreate
-from src.moto.moto import Moto as MotoModel
+from src.moto.moto_model import Moto as MotoModel
 from typing import List
 
 class MotoService:

@@ -1,8 +1,8 @@
 from sqlalchemy.orm import Session
 from src.venda.venda_schema import VendaCreate
-from src.venda.venda import Venda as VendaModel
+from src.venda.venda_model import Venda as VendaModel
 from typing import List
-from src.funcionario.funcionario import Funcionario
+from src.funcionario.funcionario_model import Funcionario
 
 class VendaService:
     def create_venda(self, db: Session, venda: VendaCreate) -> VendaModel:

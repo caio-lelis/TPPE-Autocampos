@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from src.cliente.cliente_schema import ClienteCreate
-from src.cliente.cliente import Cliente as ClienteModel
+from src.cliente.cliente_model import Cliente as ClienteModel
 from typing import List
 
 class ClienteService:

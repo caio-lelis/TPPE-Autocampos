@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from src.carro.carro_schema import CarroCreate
-from src.carro.carro import Carro as CarroModel
+from src.carro.carro_model import Carro as CarroModel
 from typing import List
 
 class CarroService:

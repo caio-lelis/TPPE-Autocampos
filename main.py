@@ -16,7 +16,6 @@ from src.usuario import usuario_endpoint
 
 app = FastAPI()
 
-
 app.include_router(usuario_endpoint.router , prefix="/api/v1" , tags=["Usuários"])
 app.include_router(admin_endpoint.router , prefix="/api/v1" , tags=["Administradores"])
 app.include_router(cliente_endpoint.router , prefix="/api/v1" , tags=["Clientes"])
@@ -30,5 +29,3 @@ app.include_router(interesse_endpoint.router , prefix="/api/v1" , tags=["Interes
 @app.get("/")
 async def root():
     return {"message": "Hello World Autocampos!"}
-
-

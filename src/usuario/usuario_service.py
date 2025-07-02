@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from src.usuario.usuario_schema import UsuarioCreate
-from src.usuario.usuario import Usuario as UserModel
+from src.usuario.usuario_model import Usuario as UserModel
 from typing import List
 
 class UsuarioService:

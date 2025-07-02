@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError # Importar para lidar com erros de UNIQUE/CHECK
 from src.interesse.interesse_schema import InteresseCreate
-from src.interesse.interesse import Interesse as InteresseModel
+from src.interesse.interesse_model import Interesse as InteresseModel
 from typing import List
 
 class InteresseService:

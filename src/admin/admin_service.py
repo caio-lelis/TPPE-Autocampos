@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from src.admin.admin_schema import AdminCreate
-from src.admin.admin import Admin as AdminModel
+from src.admin.admin_model import Admin as AdminModel
 from typing import List
 
 class AdminService:
