@@ -13,6 +13,7 @@ from src.funcionario import funcionario_endpoint
 from src.interesse import interesse_endpoint
 from src.moto import moto_endpoint
 from src.usuario import usuario_endpoint
+from src.minio import minio_endpoint
 
 app = FastAPI()
 
@@ -25,6 +26,7 @@ app.include_router(anuncio_endpoint.router , prefix="/api/v1" , tags=["Anúncios
 app.include_router(carro_endpoint.router , prefix="/api/v1" , tags=["Carros"])
 app.include_router(venda_endpoint.router , prefix="/api/v1" , tags=["Vendas"])
 app.include_router(interesse_endpoint.router , prefix="/api/v1" , tags=["Interesses"])
+app.include_router(minio_endpoint.router, prefix="/api/v1", tags=["MinIO"])
 
 @app.get("/")
 async def root():

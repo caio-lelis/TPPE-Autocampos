@@ -31,6 +31,9 @@ services:
       - APP_ENV=development
       - PYTHONUNBUFFERED=1
       - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+      - MINIO_HOST=${MINIO_HOST2}
+      - MINIO_ACCES_KEY=${MINIO_ACCESS_KEY2}
+      - MINIO_SECRET_KEY=${MINIO_SECRET_KEY2}
     depends_on:
       db:
         condition: service_healthy
@@ -43,16 +46,15 @@ services:
       context: .
     environment:
       - APP_ENV=testing
+      - PYTHONPATH=/app
     volumes:
       - .:/app
     command: >
       sh -c "sleep 5 &&
-      pytest -v --cov=. --cov-report=term-missing src/tests/
-      "
+      pytest -v --cov=. --cov-report=term-missing src/"
 
 volumes:
   postgres_data:
-  postgres_test_data: # Volume separado para os testes
 
 networks:
   microservicos-net:
