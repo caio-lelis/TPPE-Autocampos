@@ -1,23 +1,28 @@
 name: AutoCampos - Backend CI
+name: AutoCampos - Backend CI
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [main, develop]
   pull_request:
-    branches: [ main, develop ]
+    branches: [main, develop]
 
 jobs:
+  lint:
+    name: Lint Code with Pylint
   lint:
     name: Lint Code with Pylint
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.12'
+          python-version: "3.12"
 
       - name: Cache pip
         uses: actions/cache@v3
@@ -37,11 +42,14 @@ jobs:
         run: |
           echo "Running pylint with score threshold ≥ 5.0"
           SCORE=$(pylint src/ --rcfile=.pylintrc | tee pylint.log | grep "Your code has been rated at" | awk '{print $7}' | cut -d'/' -f1)
+          echo "Running pylint with score threshold ≥ 5.0"
+          SCORE=$(pylint src/ --rcfile=.pylintrc | tee pylint.log | grep "Your code has been rated at" | awk '{print $7}' | cut -d'/' -f1)
           echo "Pylint score: $SCORE"
+          SCORE_OK=$(echo "$SCORE >= 5.0" | bc)
+          if [ "$SCORE_OK" -ne 1 ]; then
+            echo "❌ Pylint score is less than 5.0. Failing pipeline."
           SCORE_OK=$(echo "$SCORE >= 5.0" | bc)
           if [ "$SCORE_OK" -ne 1 ]; then
             echo "❌ Pylint score is less than 5.0. Failing pipeline."
             exit 1
           fi
-
-
