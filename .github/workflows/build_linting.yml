@@ -36,7 +36,7 @@ jobs:
       - name: Run Pylint and check score
         run: |
           echo "Running pylint with score threshold ≥ 5.0"
-          SCORE=$(pylint app/ --rcfile=pylintrc | tee pylint.log | grep "Your code has been rated at" | awk '{print $7}' | cut -d'/' -f1)
+          SCORE=$(pylint src/ --rcfile=.pylintrc | tee pylint.log | grep "Your code has been rated at" | awk '{print $7}' | cut -d'/' -f1)
           echo "Pylint score: $SCORE"
           SCORE_OK=$(echo "$SCORE >= 5.0" | bc)
           if [ "$SCORE_OK" -ne 1 ]; then
