@@ -59,3 +59,5 @@ volumes:
 networks:
   microservicos-net:
     external: true
+# docker network create microservicos-net
+# docker network ls

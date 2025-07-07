@@ -1,3 +1,4 @@
+
 from sqlalchemy.orm import Session
 from src.anuncio.anuncio_schema import AnuncioCreate
 from src.anuncio.anuncio_model import Anuncio as AnuncioModel
