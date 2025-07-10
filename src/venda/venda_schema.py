@@ -1,5 +1,8 @@
 from pydantic import BaseModel, Field, ValidationError, model_validator, ConfigDict # Adicione model_validator e ConfigDict
 from typing import Optional
+from src.carro.carro_schema import CarroRead
+from src.cliente.cliente_schema import ClienteRead
+from src.funcionario.funcionario_schema import FuncionarioRead
 from datetime import date
 from decimal import Decimal
 
@@ -32,8 +35,10 @@ class VendaCreate(VendaBase):
 
 class VendaRead(VendaBase):
     id: int
+    carro: Optional[CarroRead] = None
+    cliente: Optional[ClienteRead] = None
+    funcionario: Optional[FuncionarioRead] = None
 
-    # --- NOVA FORMA DE CONFIGURAR NO PYDANTIC V2 ---
     model_config = ConfigDict(
         from_attributes=True, # Substitui orm_mode = True
         json_encoders={

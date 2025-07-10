@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
 from typing import Optional
 
 class AdminBase(BaseModel):
@@ -8,8 +8,13 @@ class AdminBase(BaseModel):
 class AdminCreate(AdminBase):
     pass
 
+class AdminUsuarioInfo(BaseModel):
+    nome: str
+    email: EmailStr
+
 class AdminRead(AdminBase):
     id: int
+    usuario: Optional[AdminUsuarioInfo] = None
 
     class Config:
         orm_mode = True

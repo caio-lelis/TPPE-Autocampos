@@ -20,10 +20,19 @@ class FuncionarioService:
         return db_funcionario
 
     def get_all_funcionarios(self, db: Session) -> List[FuncionarioModel]:
-        return db.query(FuncionarioModel).all()
+        funcionarios = db.query(FuncionarioModel).all()
+        for funcionario in funcionarios:
+            if funcionario.usuario:
+                funcionario.usuario.nome = funcionario.usuario.nome
+                funcionario.usuario.email = funcionario.usuario.email
+        return funcionarios
 
     def get_funcionario_by_id(self, db: Session, funcionario_id: int) -> FuncionarioModel:
-        return db.query(FuncionarioModel).filter(FuncionarioModel.id == funcionario_id).first()
+        funcionario = db.query(FuncionarioModel).filter(FuncionarioModel.id == funcionario_id).first()
+        if funcionario and funcionario.usuario:
+            funcionario.usuario.nome = funcionario.usuario.nome
+            funcionario.usuario.email = funcionario.usuario.email
+        return funcionario
 
     def get_funcionario_by_usuario_id(self, db: Session, usuario_id: int) -> FuncionarioModel:
         return db.query(FuncionarioModel).filter(FuncionarioModel.usuario_id == usuario_id).first()

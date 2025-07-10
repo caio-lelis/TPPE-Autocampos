@@ -1,3 +1,5 @@
+
+from typing import Optional
 from pydantic import BaseModel, EmailStr
 
 class UsuarioBase(BaseModel):
@@ -14,6 +16,14 @@ class UsuarioRead(BaseModel):
     nome: str
     cpf: str
     email: EmailStr
+
+
+
+class UsuarioUpdate(BaseModel):
+    nome: Optional[str] = None
+    cpf: Optional[str] = None
+    email: Optional[EmailStr] = None
+    senha: Optional[str] = None
 
     class Config:
         orm_mode = True

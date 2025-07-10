@@ -15,10 +15,20 @@ class AdminService:
         return db_admin
 
     def get_all_admins(self, db: Session) -> List[AdminModel]:
-        return db.query(AdminModel).all()
+        admins = db.query(AdminModel).all()
+        # Preenche info do usuário para cada admin
+        for admin in admins:
+            if admin.usuario:
+                admin.usuario.nome = admin.usuario.nome
+                admin.usuario.email = admin.usuario.email
+        return admins
 
     def get_admin_by_id(self, db: Session, admin_id: int) -> AdminModel:
-        return db.query(AdminModel).filter(AdminModel.id == admin_id).first()
+        admin = db.query(AdminModel).filter(AdminModel.id == admin_id).first()
+        if admin and admin.usuario:
+            admin.usuario.nome = admin.usuario.nome
+            admin.usuario.email = admin.usuario.email
+        return admin
 
     def get_admin_by_usuario_id(self, db: Session, usuario_id: int) -> AdminModel:
         return db.query(AdminModel).filter(AdminModel.usuario_id == usuario_id).first()

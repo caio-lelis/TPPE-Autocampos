@@ -20,7 +20,7 @@ class VendaService:
 
         db_funcionario = db.query(Funcionario).filter(Funcionario.id == venda.funcionario_id).first()
 
-        if db_funcionario:
+        if db_funcionario and venda.comissao_venda is not None:
             db_funcionario.rendimento_mensal += venda.comissao_venda
 
         db.commit()
