@@ -31,9 +31,10 @@ services:
       - APP_ENV=development
       - PYTHONUNBUFFERED=1
       - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
-      - MINIO_HOST=${MINIO_HOST2}
-      - MINIO_ACCES_KEY=${MINIO_ACCESS_KEY2}
-      - MINIO_SECRET_KEY=${MINIO_SECRET_KEY2}
+      - DOCKER_ENV=true
+      - MINIO_ENDPOINT=tppe-autocampos-minio-minio-1:9000
+      - MINIO_ACCESS_KEY=minio_admin
+      - MINIO_SECRET_KEY=minio_admin123
     depends_on:
       db:
         condition: service_healthy
