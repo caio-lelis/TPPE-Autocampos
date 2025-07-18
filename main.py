@@ -1,7 +1,7 @@
 import os
 
 from fastapi import FastAPI
-from sqlalchemy import create_engine, text  # Adicione text aqui
+from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -21,6 +21,8 @@ app = FastAPI()
 origins = [
     "http://localhost",
     "http://localhost:3000",
+    # Frontend em IPv6 na porta 3002
+    "http://[2a02:4780:14:9c5c::1]:3002",
 ]
 
 app.add_middleware(

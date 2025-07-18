@@ -9,7 +9,7 @@ services:
       - postgres_data:/var/lib/postgresql/data/
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
     ports:
-      - "5432:5432"
+      - "5434:5432"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
       interval: 10s
@@ -35,6 +35,8 @@ services:
       - MINIO_ENDPOINT=tppe-autocampos-minio-minio-1:9000
       - MINIO_ACCESS_KEY=minio_admin
       - MINIO_SECRET_KEY=minio_admin123
+      - MINIO_PUBLIC_ENDPOINT=[2a02:4780:14:9c5c::1]:9000
+      - MINIO_USE_SSL=false
     depends_on:
       db:
         condition: service_healthy
@@ -42,17 +44,17 @@ services:
     command: sh -c "sleep 5 && uvicorn main:app --host 0.0.0.0 --port 8000 --reload"
     networks:
       - microservicos-net
-  tests:
-    build:
-      context: .
-    environment:
-      - APP_ENV=testing
-      - PYTHONPATH=/app
-    volumes:
-      - .:/app
-    command: >
-      sh -c "sleep 5 &&
-      pytest -v --cov=. --cov-report=term-missing src/"
+  # tests:
+  #   build:
+  #     context: .
+  #   environment:
+  #     - APP_ENV=testing
+  #     - PYTHONPATH=/app
+  #   volumes:
+  #     - .:/app
+  #   command: >
+  #     sh -c "sleep 5 &&
+  #     pytest -v --cov=. --cov-report=term-missing src/"
 
 volumes:
   postgres_data:

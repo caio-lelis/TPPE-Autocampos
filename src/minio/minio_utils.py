@@ -6,9 +6,16 @@ import os
 from minio import Minio
 from minio.error import S3Error
 
-MINIO_ACCES_KEY = os.getenv("MINIO_ACCES_KEY")
-MINIO_SECRET_KEY = os.getenv("MINIO_SECRET_KEY")
-MINIO_HOST = os.getenv("MINIO_HOST")
+MINIO_ACCESS_KEY = os.getenv("MINIO_ACCESS_KEY", "minio_admin")
+MINIO_SECRET_KEY = os.getenv("MINIO_SECRET_KEY", "minio_admin123")
+# Usa endpoint público se configurado, senão fallback para MINIO_ENDPOINT ou localhost
+"""
+# HOST para conexões internas do cliente MinIO (normalmente o serviço Docker ou localhost)
+"""
+MINIO_HOST = os.getenv("MINIO_ENDPOINT", "localhost:9000")
+
+# Flag para usar HTTPS na conexão com o MinIO (cliente interno)
+MINIO_USE_SSL = os.getenv("MINIO_USE_SSL", "false").lower() == "true"
 
 BUCKET_NAME = "carros"
 PATH_MINIO = ""
@@ -20,9 +27,9 @@ def minio_client():
     """
     client = Minio(
         MINIO_HOST,
-        access_key=MINIO_ACCES_KEY,
+        access_key=MINIO_ACCESS_KEY,
         secret_key=MINIO_SECRET_KEY,
-        secure=False,
+        secure=MINIO_USE_SSL,
     )
     return client
 

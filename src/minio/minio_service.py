@@ -8,23 +8,28 @@ import os
 
 class MinioService:
     def __init__(self):
-        # Detecta se está rodando em Docker ou localmente
         is_docker = os.getenv("DOCKER_ENV", "false").lower() == "true"
         
         if is_docker:
-            # Dentro do Docker, usa nome do container
             endpoint = os.getenv("MINIO_ENDPOINT", "tppe-autocampos-minio-minio-1:9000")
         else:
-            # Localmente, usa localhost
             endpoint = os.getenv("MINIO_ENDPOINT", "localhost:9000")
             
         self.client = Minio(
             endpoint=endpoint,
             access_key=os.getenv("MINIO_ACCESS_KEY", "minio_admin"),
             secret_key=os.getenv("MINIO_SECRET_KEY", "minio_admin123"),
-            secure=False  # Para desenvolvimento local
+            secure=False
         )
         self.bucket_name = os.getenv("MINIO_BUCKET_NAME", "autocampos-images")
+        # Configurações de URL pública e protocolo
+        # Permite usar HTTPS em produção via variável MINIO_USE_SSL
+        self.secure = os.getenv("MINIO_USE_SSL", "false").lower() == "true"
+        # Endpoint exposto externamente (host:porta), default same as interno
+        self.public_endpoint = os.getenv("MINIO_PUBLIC_ENDPOINT", endpoint)
+        # Prefixo de URL para geração de links públicos
+        protocol = "https" if self.secure else "http"
+        self.url_prefix = f"{protocol}://{self.public_endpoint}"
         self._ensure_bucket_exists()
 
     def _ensure_bucket_exists(self):
@@ -66,7 +71,8 @@ class MinioService:
             )
             
             # Retorna a URL da imagem
-            return f"http://localhost:9000/{self.bucket_name}/{filename}"
+            # Usa prefixo configurado para produção/produção local
+            return f"{self.url_prefix}/{self.bucket_name}/{filename}"
             
         except S3Error as e:
             print(f"Erro ao fazer upload da imagem: {e}")
@@ -103,7 +109,8 @@ class MinioService:
         Returns:
             URL da imagem
         """
-        return f"http://localhost:9000/{self.bucket_name}/{object_name}"
+        # Retorna URL pública configurável
+        return f"{self.url_prefix}/{self.bucket_name}/{object_name}"
 
     def _get_extension_from_content_type(self, content_type: str) -> str:
         """Converte content-type para extensão de arquivo."""
