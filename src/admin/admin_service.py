@@ -151,8 +151,12 @@ class AdminService:
         total_motos = db.query(func.count(Moto.id)).scalar() or 0
         total_anuncios = db.query(func.count(Anuncio.id)).scalar() or 0
         
-        # Anúncios ativos
-        anuncios_ativos = db.query(func.count(Anuncio.id)).filter(Anuncio.ativo == True).scalar() or 0
+        # Anúncios ativos (considerando anúncios publicados nos últimos 30 dias como ativos)
+        from datetime import datetime, timedelta
+        thirty_days_ago = datetime.now().date() - timedelta(days=30)
+        anuncios_ativos = db.query(func.count(Anuncio.id)).filter(
+            Anuncio.data_publicacao >= thirty_days_ago
+        ).scalar() or 0
         
         # Cálculo de progresso de vendas (meta fictícia de 100 vendas)
         meta_vendas = 100
