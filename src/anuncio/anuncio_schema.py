@@ -3,7 +3,7 @@ from typing import Optional, Union
 from datetime import date
 
 class AnuncioBase(BaseModel):
-    funcionario_id: int
+    funcionario_id: Optional[int] = None
     carro_id: Optional[int] = None
     moto_id: Optional[int] = None
     data_publicacao: Optional[date] = date.today()

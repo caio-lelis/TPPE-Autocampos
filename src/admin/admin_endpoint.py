@@ -17,6 +17,29 @@ def get_db():
     finally:
         db.close()
 
+@router.delete("/delete/{admin_id}", response_model=AdminRead)
+def delete_admin_api(admin_id: int, db: Session = Depends(get_db)):
+    try:
+        db_admin = admin_service.delete_admin(db, admin_id)
+        if not db_admin:
+            raise HTTPException(status_code=404, detail="Admin não encontrado.")
+        return db_admin
+    except Exception as e:
+        # Captura erros de integridade referencial ou constraints
+        error_msg = str(e).lower()
+        if "foreign key constraint" in error_msg or "violates foreign key constraint" in error_msg:
+            raise HTTPException(
+                status_code=409, 
+                detail="Não é possível excluir o administrador devido a restrições de integridade referencial."
+            )
+        elif "constraint" in error_msg:
+            raise HTTPException(
+                status_code=409,
+                detail="Não é possível excluir o administrador devido a restrições de integridade de dados."
+            )
+        else:
+            raise HTTPException(status_code=500, detail=f"Erro interno do servidor: {str(e)}")
+
 @router.post("/create", response_model=AdminRead)
 def create_admin_api(admin: AdminCreate, db: Session = Depends(get_db)):
     # Garante que is_admin seja sempre true

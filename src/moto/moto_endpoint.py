@@ -41,7 +41,23 @@ def update_moto_api(moto_id: int, moto: MotoCreate, db: Session = Depends(get_db
 
 @router.delete("/delete/{moto_id}", response_model=MotoRead)
 def delete_moto_api(moto_id: int, db: Session = Depends(get_db)):
-    db_moto = moto_service.delete_moto(db, moto_id)
-    if not db_moto:
-        raise HTTPException(status_code=404, detail="Moto não encontrada.")
-    return db_moto
+    try:
+        db_moto = moto_service.delete_moto(db, moto_id)
+        if not db_moto:
+            raise HTTPException(status_code=404, detail="Moto não encontrada.")
+        return db_moto
+    except Exception as e:
+        # Captura erros de integridade referencial
+        error_msg = str(e).lower()
+        if "foreign key constraint" in error_msg or "violates foreign key constraint" in error_msg:
+            raise HTTPException(
+                status_code=409, 
+                detail="Não é possível excluir a moto. Existem vendas associadas a este veículo."
+            )
+        elif "constraint" in error_msg:
+            raise HTTPException(
+                status_code=409,
+                detail="Não é possível excluir a moto devido a restrições de integridade de dados."
+            )
+        else:
+            raise HTTPException(status_code=500, detail=f"Erro interno do servidor: {str(e)}")

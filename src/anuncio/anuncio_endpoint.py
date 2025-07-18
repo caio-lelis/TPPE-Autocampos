@@ -51,23 +51,42 @@ def update_anuncio_api(anuncio_id: int, anuncio: AnuncioCreate, db: Session = De
 
 @router.delete("/delete/{anuncio_id}", response_model=AnuncioRead)
 def delete_anuncio_api(anuncio_id: int, db: Session = Depends(get_db)):
-    # Busca o anúncio para obter as URLs das imagens
-    db_anuncio = anuncio_service.get_anuncio_by_id(db, anuncio_id)
-    if not db_anuncio:
-        raise HTTPException(status_code=404, detail="Anúncio não encontrado.")
-    
-    # Remove as imagens do MinIO
-    image_urls = [db_anuncio.imagem1_url, db_anuncio.imagem2_url, db_anuncio.imagem3_url]
-    for url in image_urls:
-        if url:
-            minio_service.delete_image(url)
-    
-    # Remove o anúncio do banco
-    deleted_anuncio = anuncio_service.delete_anuncio(db, anuncio_id)
-    if not deleted_anuncio:
-        raise HTTPException(status_code=404, detail="Anúncio não encontrado.")
-    
-    return deleted_anuncio
+    try:
+        # Busca o anúncio para obter as URLs das imagens
+        db_anuncio = anuncio_service.get_anuncio_by_id(db, anuncio_id)
+        if not db_anuncio:
+            raise HTTPException(status_code=404, detail="Anúncio não encontrado.")
+        
+        # Remove as imagens do MinIO
+        image_urls = [db_anuncio.imagem1_url, db_anuncio.imagem2_url, db_anuncio.imagem3_url]
+        for url in image_urls:
+            if url:
+                minio_service.delete_image(url)
+        
+        # Remove o anúncio do banco
+        deleted_anuncio = anuncio_service.delete_anuncio(db, anuncio_id)
+        if not deleted_anuncio:
+            raise HTTPException(status_code=404, detail="Anúncio não encontrado.")
+        
+        return deleted_anuncio
+    except HTTPException:
+        # Re-raise HTTPExceptions para manter códigos de status específicos
+        raise
+    except Exception as e:
+        # Captura erros de integridade referencial ou constraints
+        error_msg = str(e).lower()
+        if "foreign key constraint" in error_msg or "violates foreign key constraint" in error_msg:
+            raise HTTPException(
+                status_code=409, 
+                detail="Não é possível excluir o anúncio devido a restrições de integridade referencial."
+            )
+        elif "constraint" in error_msg:
+            raise HTTPException(
+                status_code=409,
+                detail="Não é possível excluir o anúncio devido a restrições de integridade de dados."
+            )
+        else:
+            raise HTTPException(status_code=500, detail=f"Erro interno do servidor: {str(e)}")
 
 @router.get("/carros-anunciados/marca/{marca}", response_model=List[CarroRead])
 def get_carros_anunciados_por_marca(marca: str, db: Session = Depends(get_db)):
@@ -86,7 +105,7 @@ def get_motos_anunciadas_por_marca(marca: str, db: Session = Depends(get_db)):
 
 @router.post("/create-with-images", response_model=AnuncioRead)
 async def create_anuncio_with_images(
-    funcionario_id: int = Form(...),
+    funcionario_id: Optional[int] = Form(None),
     carro_id: Optional[int] = Form(None),
     moto_id: Optional[int] = Form(None),
     data_publicacao: Optional[str] = Form(None),
@@ -182,7 +201,7 @@ async def create_anuncio_with_images(
 @router.put("/update-with-images/{anuncio_id}", response_model=AnuncioRead)
 async def update_anuncio_with_images(
     anuncio_id: int,
-    funcionario_id: int = Form(...),
+    funcionario_id: Optional[int] = Form(None),
     carro_id: Optional[int] = Form(None),
     moto_id: Optional[int] = Form(None),
     data_publicacao: Optional[str] = Form(None),

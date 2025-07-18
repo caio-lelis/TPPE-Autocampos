@@ -7,7 +7,7 @@ class Anuncio(Base):
     __tablename__ = "anuncios"
 
     id = Column(Integer, primary_key=True, index=True)
-    funcionario_id = Column(Integer, ForeignKey("funcionarios.id"), nullable=False)
+    funcionario_id = Column(Integer, ForeignKey("funcionarios.id"), nullable=True)
     carro_id = Column(Integer, ForeignKey("carros.id", ondelete="CASCADE"), unique=True)
     moto_id = Column(Integer, ForeignKey("motos.id", ondelete="CASCADE"), unique=True)
     data_publicacao = Column(Date, default=date.today, nullable=False)

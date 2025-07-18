@@ -41,7 +41,23 @@ def update_cliente_api(cliente_id: int, cliente: ClienteCreate, db: Session = De
 
 @router.delete("/delete/{cliente_id}", response_model=ClienteRead)
 def delete_cliente_api(cliente_id: int, db: Session = Depends(get_db)):
-    db_cliente = cliente_service.delete_cliente(db, cliente_id)
-    if not db_cliente:
-        raise HTTPException(status_code=404, detail="Cliente não encontrado.")
-    return db_cliente
+    try:
+        db_cliente = cliente_service.delete_cliente(db, cliente_id)
+        if not db_cliente:
+            raise HTTPException(status_code=404, detail="Cliente não encontrado.")
+        return db_cliente
+    except Exception as e:
+        # Captura erros de integridade referencial
+        error_msg = str(e).lower()
+        if "foreign key constraint" in error_msg or "violates foreign key constraint" in error_msg:
+            raise HTTPException(
+                status_code=409, 
+                detail="Não é possível excluir o cliente. Existem vendas ou interesses associados a este cliente."
+            )
+        elif "constraint" in error_msg:
+            raise HTTPException(
+                status_code=409,
+                detail="Não é possível excluir o cliente devido a restrições de integridade de dados."
+            )
+        else:
+            raise HTTPException(status_code=500, detail=f"Erro interno do servidor: {str(e)}")

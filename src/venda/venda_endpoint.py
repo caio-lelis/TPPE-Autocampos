@@ -47,7 +47,23 @@ def update_venda_api(venda_id: int, venda: VendaCreate, db: Session = Depends(ge
 
 @router.delete("/delete/{venda_id}", response_model=VendaRead)
 def delete_venda_api(venda_id: int, db: Session = Depends(get_db)):
-    db_venda = venda_service.delete_venda(db, venda_id)
-    if not db_venda:
-        raise HTTPException(status_code=404, detail="Venda não encontrada.")
-    return db_venda
+    try:
+        db_venda = venda_service.delete_venda(db, venda_id)
+        if not db_venda:
+            raise HTTPException(status_code=404, detail="Venda não encontrada.")
+        return db_venda
+    except Exception as e:
+        # Captura erros de integridade referencial ou constraints
+        error_msg = str(e).lower()
+        if "foreign key constraint" in error_msg or "violates foreign key constraint" in error_msg:
+            raise HTTPException(
+                status_code=409, 
+                detail="Não é possível excluir a venda devido a restrições de integridade referencial."
+            )
+        elif "constraint" in error_msg:
+            raise HTTPException(
+                status_code=409,
+                detail="Não é possível excluir a venda devido a restrições de integridade de dados."
+            )
+        else:
+            raise HTTPException(status_code=500, detail=f"Erro interno do servidor: {str(e)}")

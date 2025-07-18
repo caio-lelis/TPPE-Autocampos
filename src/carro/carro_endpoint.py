@@ -41,7 +41,23 @@ def update_carro_api(carro_id: int, carro: CarroCreate, db: Session = Depends(ge
 
 @router.delete("/delete/{carro_id}", response_model=CarroRead)
 def delete_carro_api(carro_id: int, db: Session = Depends(get_db)):
-    db_carro = carro_service.delete_carro(db, carro_id)
-    if not db_carro:
-        raise HTTPException(status_code=404, detail="Carro não encontrado.")
-    return db_carro
+    try:
+        db_carro = carro_service.delete_carro(db, carro_id)
+        if not db_carro:
+            raise HTTPException(status_code=404, detail="Carro não encontrado.")
+        return db_carro
+    except Exception as e:
+        # Captura erros de integridade referencial
+        error_msg = str(e).lower()
+        if "foreign key constraint" in error_msg or "violates foreign key constraint" in error_msg:
+            raise HTTPException(
+                status_code=409, 
+                detail="Não é possível excluir o carro. Existem vendas associadas a este veículo."
+            )
+        elif "constraint" in error_msg:
+            raise HTTPException(
+                status_code=409,
+                detail="Não é possível excluir o carro devido a restrições de integridade de dados."
+            )
+        else:
+            raise HTTPException(status_code=500, detail=f"Erro interno do servidor: {str(e)}")

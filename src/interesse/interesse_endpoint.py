@@ -14,6 +14,29 @@ def get_db():
     finally:
         db.close()
 
+@router.delete("/delete/{interesse_id}", response_model=InteresseRead)
+def delete_interesse_api(interesse_id: int, db: Session = Depends(get_db)):
+    try:
+        db_interesse = interesse_service.delete_interesse(db, interesse_id)
+        if not db_interesse:
+            raise HTTPException(status_code=404, detail="Interesse não encontrado.")
+        return db_interesse
+    except Exception as e:
+        # Captura erros de integridade referencial ou constraints
+        error_msg = str(e).lower()
+        if "foreign key constraint" in error_msg or "violates foreign key constraint" in error_msg:
+            raise HTTPException(
+                status_code=409, 
+                detail="Não é possível excluir o interesse devido a restrições de integridade referencial."
+            )
+        elif "constraint" in error_msg:
+            raise HTTPException(
+                status_code=409,
+                detail="Não é possível excluir o interesse devido a restrições de integridade de dados."
+            )
+        else:
+            raise HTTPException(status_code=500, detail=f"Erro interno do servidor: {str(e)}")
+
 @router.post("/create", response_model=InteresseRead, status_code=status.HTTP_201_CREATED)
 def create_interesse_api(interesse: InteresseCreate, db: Session = Depends(get_db)):
     try:

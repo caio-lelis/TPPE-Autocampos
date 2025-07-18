@@ -46,7 +46,7 @@ def print_available_endpoints():
     
     print("\n🔧 Como usar:")
     print("  1. Para criar anúncio com imagens, use POST com multipart/form-data:")
-    print("     - funcionario_id: int (obrigatório)")
+    print("     - funcionario_id: int (opcional)")
     print("     - carro_id: int (opcional)")
     print("     - moto_id: int (opcional)")
     print("     - data_publicacao: string YYYY-MM-DD (opcional)")

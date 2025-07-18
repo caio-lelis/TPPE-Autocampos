@@ -43,8 +43,24 @@ def update_usuario_api(usuario_id: int, usuario: UsuarioUpdate, db: Session = De
 
 @router.delete("/delete/{usuario_id}", response_model=UsuarioRead)
 def delete_usuario_api(usuario_id: int, db: Session = Depends(get_db)):
-    db_usuario = usuario_service.delete_usuario(db, usuario_id)
-    if not db_usuario:
-        raise HTTPException(status_code=404, detail="Usuário não encontrado.")
-    return db_usuario
+    try:
+        db_usuario = usuario_service.delete_usuario(db, usuario_id)
+        if not db_usuario:
+            raise HTTPException(status_code=404, detail="Usuário não encontrado.")
+        return db_usuario
+    except Exception as e:
+        # Captura erros de integridade referencial
+        error_msg = str(e).lower()
+        if "foreign key constraint" in error_msg or "violates foreign key constraint" in error_msg:
+            raise HTTPException(
+                status_code=409, 
+                detail="Não é possível excluir o usuário. Existem funcionários ou administradores associados a este usuário."
+            )
+        elif "constraint" in error_msg:
+            raise HTTPException(
+                status_code=409,
+                detail="Não é possível excluir o usuário devido a restrições de integridade de dados."
+            )
+        else:
+            raise HTTPException(status_code=500, detail=f"Erro interno do servidor: {str(e)}")
 

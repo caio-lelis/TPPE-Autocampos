@@ -46,10 +46,26 @@ def update_funcionario_api(funcionario_id: int, funcionario: FuncionarioCreate, 
 
 @router.delete("/delete/{funcionario_id}", response_model=FuncionarioRead)
 def delete_funcionario_api(funcionario_id: int, db: Session = Depends(get_db)):
-    db_funcionario = funcionario_service.delete_funcionario(db, funcionario_id)
-    if not db_funcionario:
-        raise HTTPException(status_code=404, detail="Funcionário não encontrado.")
-    return db_funcionario
+    try:
+        db_funcionario = funcionario_service.delete_funcionario(db, funcionario_id)
+        if not db_funcionario:
+            raise HTTPException(status_code=404, detail="Funcionário não encontrado.")
+        return db_funcionario
+    except Exception as e:
+        # Captura erros de integridade referencial
+        error_msg = str(e).lower()
+        if "foreign key constraint" in error_msg or "violates foreign key constraint" in error_msg:
+            raise HTTPException(
+                status_code=409, 
+                detail="Não é possível excluir o funcionário. Existem anúncios ou vendas associados a este funcionário."
+            )
+        elif "constraint" in error_msg:
+            raise HTTPException(
+                status_code=409,
+                detail="Não é possível excluir o funcionário devido a restrições de integridade de dados."
+            )
+        else:
+            raise HTTPException(status_code=500, detail=f"Erro interno do servidor: {str(e)}")
 
 @router.get("/{funcionario_id}/dashboard")
 def get_dashboard_funcionario(
