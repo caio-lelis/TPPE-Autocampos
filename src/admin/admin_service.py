@@ -121,4 +121,108 @@ class AdminService:
         }
         return stats, img_b64
 
+    def get_admin_home_metrics(self, db: Session) -> dict:
+        """
+        Retorna métricas específicas para o painel home do administrador
+        """
+        from src.venda.venda_model import Venda
+        from src.funcionario.funcionario_model import Funcionario as FuncModel
+        from src.cliente.cliente_model import Cliente
+        from src.carro.carro_model import Carro
+        from src.moto.moto_model import Moto
+        from src.anuncio.anuncio_model import Anuncio
+        from sqlalchemy import func
+
+        # Vendas totais
+        total_vendas = db.query(func.count(Venda.id)).scalar() or 0
+        valor_total_vendas = float(db.query(func.coalesce(func.sum(Venda.valor_final), 0)).scalar())
+        
+        # Vendas por tipo
+        vendas_carros = db.query(func.count(Venda.id)).filter(Venda.carro_id != None).scalar() or 0
+        vendas_motos = db.query(func.count(Venda.id)).filter(Venda.moto_id != None).scalar() or 0
+        
+        # Comissão total paga
+        comissao_total = float(db.query(func.coalesce(func.sum(Venda.comissao_venda), 0)).scalar())
+        
+        # Contadores gerais
+        total_funcionarios = db.query(func.count(FuncModel.id)).scalar() or 0
+        total_clientes = db.query(func.count(Cliente.id)).scalar() or 0
+        total_carros = db.query(func.count(Carro.id)).scalar() or 0
+        total_motos = db.query(func.count(Moto.id)).scalar() or 0
+        total_anuncios = db.query(func.count(Anuncio.id)).scalar() or 0
+        
+        # Anúncios ativos
+        anuncios_ativos = db.query(func.count(Anuncio.id)).filter(Anuncio.ativo == True).scalar() or 0
+        
+        # Cálculo de progresso de vendas (meta fictícia de 100 vendas)
+        meta_vendas = 100
+        progresso_vendas = (total_vendas / meta_vendas) * 100 if meta_vendas > 0 else 0
+        
+        return {
+            "total_vendas": total_vendas,
+            "valor_total_vendas": valor_total_vendas,
+            "vendas_carros": vendas_carros,
+            "vendas_motos": vendas_motos,
+            "comissao_total": comissao_total,
+            "total_funcionarios": total_funcionarios,
+            "total_clientes": total_clientes,
+            "total_carros": total_carros,
+            "total_motos": total_motos,
+            "total_anuncios": total_anuncios,
+            "anuncios_ativos": anuncios_ativos,
+            "progresso_vendas": min(progresso_vendas, 100),
+            "meta_vendas": meta_vendas
+        }
+
+    def get_business_overview(self, db: Session) -> dict:
+        """
+        Retorna uma visão geral do negócio para o administrador
+        """
+        from src.venda.venda_model import Venda
+        from src.funcionario.funcionario_model import Funcionario as FuncModel
+        from src.usuario.usuario_model import Usuario as UserModel
+        from sqlalchemy import func, desc
+        from datetime import datetime, timedelta
+
+        # Top 3 funcionários por vendas
+        top_funcionarios = db.query(
+            FuncModel.id,
+            UserModel.nome,
+            func.count(Venda.id).label('total_vendas'),
+            func.coalesce(func.sum(Venda.valor_final), 0).label('valor_total')
+        ).join(
+            UserModel, FuncModel.usuario_id == UserModel.id
+        ).outerjoin(
+            Venda, FuncModel.id == Venda.funcionario_id
+        ).group_by(
+            FuncModel.id, UserModel.nome
+        ).order_by(
+            desc('total_vendas')
+        ).limit(3).all()
+
+        # Vendas dos últimos 30 dias
+        thirty_days_ago = datetime.now() - timedelta(days=30)
+        vendas_recentes = db.query(func.count(Venda.id)).filter(
+            Venda.data_venda >= thirty_days_ago
+        ).scalar() or 0
+
+        # Receita dos últimos 30 dias
+        receita_recente = float(db.query(func.coalesce(func.sum(Venda.valor_final), 0)).filter(
+            Venda.data_venda >= thirty_days_ago
+        ).scalar())
+
+        return {
+            "top_funcionarios": [
+                {
+                    "id": f.id,
+                    "nome": f.nome,
+                    "total_vendas": f.total_vendas,
+                    "valor_total": float(f.valor_total)
+                }
+                for f in top_funcionarios
+            ],
+            "vendas_ultimos_30_dias": vendas_recentes,
+            "receita_ultimos_30_dias": receita_recente
+        }
+
 admin_service = AdminService()

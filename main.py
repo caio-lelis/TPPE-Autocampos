@@ -6,6 +6,7 @@ from sqlalchemy.orm import sessionmaker
 from fastapi.middleware.cors import CORSMiddleware
 
 from src.admin import admin_endpoint
+from src.admin import admin_home_endpoint
 from src.anuncio import anuncio_endpoint
 from src.venda import venda_endpoint 
 from src.carro import carro_endpoint
@@ -36,6 +37,7 @@ app.add_middleware(
 
 app.include_router(usuario_endpoint.router , prefix="/api/v1" , tags=["Usuários"])
 app.include_router(admin_endpoint.router , prefix="/api/v1" , tags=["Administradores"])
+app.include_router(admin_home_endpoint.router , prefix="/api/v1" , tags=["Admin Home"])
 app.include_router(cliente_endpoint.router , prefix="/api/v1" , tags=["Clientes"])
 app.include_router(funcionario_endpoint.router , prefix="/api/v1" , tags=["Funcionários"])
 app.include_router(moto_endpoint.router , prefix="/api/v1" , tags=["Motos"])
