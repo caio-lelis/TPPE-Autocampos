@@ -59,19 +59,65 @@ class FuncionarioService:
         """
         Retorna dados consolidados para o dashboard de vendas do funcionário:
         - Total de carros vendidos
+        - Total de motos vendidas
         - Soma das comissões
+        - Valor total das vendas
+        - Número de clientes ativos
         """
-        dados = db.query(
+        from src.cliente.cliente_model import Cliente
+        from src.interesse.interesse_model import Interesse
+        
+        # Dados de vendas de carros
+        dados_carros = db.query(
             func.count(Venda.carro_id).label("total_carros_vendidos"),
-            func.sum(Venda.comissao_venda).label("total_comissoes")
+            func.sum(Venda.comissao_venda).label("comissoes_carros"),
+            func.sum(Venda.valor_final).label("valor_carros")
         ).filter(
             Venda.funcionario_id == funcionario_id,
-            Venda.carro_id.isnot(None)  # Filtra apenas vendas de carros
+            Venda.carro_id.isnot(None)
         ).first()
+        
+        # Dados de vendas de motos
+        dados_motos = db.query(
+            func.count(Venda.moto_id).label("total_motos_vendidas"),
+            func.sum(Venda.comissao_venda).label("comissoes_motos"),
+            func.sum(Venda.valor_final).label("valor_motos")
+        ).filter(
+            Venda.funcionario_id == funcionario_id,
+            Venda.moto_id.isnot(None)
+        ).first()
+        
+        # Clientes únicos que fizeram compras com este funcionário
+        clientes_ativos = db.query(
+            func.count(func.distinct(Venda.cliente_id)).label("clientes_ativos")
+        ).filter(
+            Venda.funcionario_id == funcionario_id
+        ).first()
+        
+        # Calcular totais
+        total_carros = dados_carros.total_carros_vendidos if dados_carros else 0
+        total_motos = dados_motos.total_motos_vendidas if dados_motos else 0
+        
+        comissao_carros = float(dados_carros.comissoes_carros) if dados_carros and dados_carros.comissoes_carros else 0.0
+        comissao_motos = float(dados_motos.comissoes_motos) if dados_motos and dados_motos.comissoes_motos else 0.0
+        total_comissoes = comissao_carros + comissao_motos
+        
+        valor_carros = float(dados_carros.valor_carros) if dados_carros and dados_carros.valor_carros else 0.0
+        valor_motos = float(dados_motos.valor_motos) if dados_motos and dados_motos.valor_motos else 0.0
+        total_vendas = valor_carros + valor_motos
+        
+        total_veiculos = total_carros + total_motos
+        clientes_count = clientes_ativos.clientes_ativos if clientes_ativos else 0
 
         return {
-            "total_carros_vendidos": dados.total_carros_vendidos if dados else 0,
-            "total_comissoes": float(dados.total_comissoes) if dados and dados.total_comissoes else 0.0
+            "total_carros_vendidos": total_carros,
+            "total_motos_vendidas": total_motos,
+            "total_veiculos_vendidos": total_veiculos,
+            "total_comissoes": total_comissoes,
+            "total_vendas": total_vendas,
+            "clientes_ativos": clientes_count,
+            "valor_carros": valor_carros,
+            "valor_motos": valor_motos
         }
 
     def gerar_grafico_vendas(self, dados: Dict) -> str:

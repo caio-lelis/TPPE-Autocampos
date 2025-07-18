@@ -15,6 +15,7 @@ from src.interesse import interesse_endpoint
 from src.moto import moto_endpoint
 from src.usuario import usuario_endpoint
 from src.minio import minio_endpoint
+from src.home import home_endpoint
 
 app = FastAPI()
 
@@ -43,6 +44,7 @@ app.include_router(carro_endpoint.router , prefix="/api/v1" , tags=["Carros"])
 app.include_router(venda_endpoint.router , prefix="/api/v1" , tags=["Vendas"])
 app.include_router(interesse_endpoint.router , prefix="/api/v1" , tags=["Interesses"])
 app.include_router(minio_endpoint.router, prefix="/api/v1", tags=["MinIO"])
+app.include_router(home_endpoint.router, prefix="/api/v1", tags=["Home"])
 
 @app.get("/")
 async def root():

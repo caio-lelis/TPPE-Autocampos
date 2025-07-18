@@ -75,23 +75,47 @@ def get_dashboard_funcionario(
     """
     Endpoint para obter dados de dashboard do funcionário:
     - Total de carros vendidos
+    - Total de motos vendidas
     - Total de comissões
+    - Valor total das vendas
+    - Clientes ativos
     - Gráfico em base64
     """
     try:
+        # Verificar se o funcionário existe
+        funcionario = funcionario_service.get_funcionario_by_id(db, funcionario_id)
+        if not funcionario:
+            raise HTTPException(
+                status_code=404,
+                detail="Funcionário não encontrado."
+            )
+
         # Obter dados consolidados
         dados = funcionario_service.get_dashboard_vendas(
             db, 
             funcionario_id=funcionario_id,
         )
         
-        if dados["total_carros_vendidos"] == 0:
-            raise HTTPException(
-                status_code=404,
-                detail="Nenhuma venda encontrada para o período selecionado."
-            )
+        # Permitir dashboard mesmo sem vendas, mas com dados zerados
+        if dados["total_veiculos_vendidos"] == 0:
+            # Retornar dados zerados em vez de erro
+            dados_zerados = {
+                "total_carros_vendidos": 0,
+                "total_motos_vendidas": 0,
+                "total_veiculos_vendidos": 0,
+                "total_comissoes": 0.0,
+                "total_vendas": 0.0,
+                "clientes_ativos": 0,
+                "valor_carros": 0.0,
+                "valor_motos": 0.0
+            }
+            return JSONResponse(content={
+                "funcionario_id": funcionario_id,
+                "metricas": dados_zerados,
+                "grafico": None
+            })
 
-        # Gerar gráfico
+        # Gerar gráfico apenas se houver dados
         grafico_base64 = funcionario_service.gerar_grafico_vendas(dados)
 
         return JSONResponse(content={
