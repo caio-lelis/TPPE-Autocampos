@@ -7,9 +7,9 @@ class AnuncioBase(BaseModel):
     carro_id: Optional[int] = None
     moto_id: Optional[int] = None
     data_publicacao: Optional[date] = date.today()
-    imagem1_url: Optional[HttpUrl] = None
-    imagem2_url: Optional[HttpUrl] = None
-    imagem3_url: Optional[HttpUrl] = None
+    imagem1_url: Optional[Union[HttpUrl, str]] = None
+    imagem2_url: Optional[Union[HttpUrl, str]] = None
+    imagem3_url: Optional[Union[HttpUrl, str]] = None
 
     @model_validator(mode='after')
     def check_carro_moto_exclusivity_and_at_least_one_vehicle(self):

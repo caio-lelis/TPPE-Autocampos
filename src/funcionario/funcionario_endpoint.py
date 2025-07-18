@@ -6,6 +6,9 @@ from src.funcionario.funcionario_schema import FuncionarioCreate, FuncionarioRea
 from src.funcionario.funcionario_service import funcionario_service
 from typing import List
 from datetime import date
+from pydantic import BaseModel
+from src.usuario.usuario_service import usuario_service
+from src.funcionario.funcionario_model import Funcionario
 
 router = APIRouter(prefix="/funcionarios", tags=["Funcionários"])
 
@@ -88,3 +91,25 @@ def get_dashboard_funcionario(
             status_code=500,
             detail=f"Erro ao gerar dashboard: {str(e)}"
         )
+
+class FuncionarioLogin(BaseModel):
+    email: str
+    senha: str
+
+@router.post("/login")
+def login_funcionario_api(login: FuncionarioLogin, db: Session = Depends(get_db)):
+    # Autentica usuário
+    usuario = usuario_service.authenticate_usuario(db, login.email, login.senha)
+    if not usuario:
+        raise HTTPException(status_code=401, detail="Email ou senha inválidos.")
+    # Verifica se é funcionário
+    funcionario = db.query(Funcionario).filter(Funcionario.usuario_id == usuario.id).first()
+    if not funcionario:
+        raise HTTPException(status_code=403, detail="Não autorizado como funcionário.")
+    # Retorna dados do funcionário
+    return {
+        "id": usuario.id,
+        "nome": usuario.nome,
+        "email": usuario.email,
+        "tipo": "funcionario"
+    }

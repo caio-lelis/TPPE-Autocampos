@@ -76,102 +76,64 @@ class FuncionarioService:
 
     def gerar_grafico_vendas(self, dados: Dict) -> str:
         """
-        Gera um gráfico combinado (barra + linha) com visual moderno:
-        - Barras: Quantidade de carros vendidos
-        - Linha: Valor das comissões (em escala separada)
+        Gera um gráfico de barras com valores normalizados (0–100%).
+        Permite comparar comissões e carros vendidos proporcionalmente.
         """
         try:
-            # Configuração do estilo profissional
             plt.style.use('seaborn-v0_8-whitegrid')
-            fig, ax1 = plt.subplots(figsize=(12, 6))
-            
-            # Paleta de cores moderna
-            palette = {
-                'carros': '#1f77b4',
-                'comissoes': '#ff7f0e',
-                'linha': '#d62728'
+            fig, ax = plt.subplots(figsize=(8, 5))
+
+            # Dados originais
+            valores_originais = {
+                "Carros Vendidos": dados["total_carros_vendidos"],
+                "Comissões (R$)": dados["total_comissoes"]
             }
 
-            # --- Gráfico de Barras (Carros Vendidos) ---
-            bars = ax1.bar(
-                'Carros Vendidos', 
-                dados["total_carros_vendidos"],
-                color=palette['carros'],
-                width=0.6,
-                alpha=0.8,
-                label=f'Carros: {dados["total_carros_vendidos"]}'
+            # Normaliza os dados (0 a 100%)
+            valor_max = max(valores_originais.values()) or 1  # evita divisão por zero
+            valores_normalizados = {
+                k: (v / valor_max) * 100 for k, v in valores_originais.items()
+            }
+
+            # Cores
+            cores = ['#1f77b4', '#ff7f0e']
+
+            # Gráfico
+            ax.bar(
+                list(valores_normalizados.keys()),
+                list(valores_normalizados.values()),
+                color=cores,
+                width=0.5,
+                alpha=0.9
             )
-            ax1.set_ylabel('Quantidade de Carros', color=palette['carros'])
-            ax1.tick_params(axis='y', labelcolor=palette['carros'])
-            
-            # Adiciona valores nas barras
-            for bar in bars:
-                height = bar.get_height()
-                ax1.annotate(
-                    f'{height}',
-                    xy=(bar.get_x() + bar.get_width()/2, height),
-                    xytext=(0, 5),
-                    textcoords="offset points",
-                    ha='center',
-                    va='bottom',
-                    fontsize=10,
-                    color=palette['carros']
+
+            # Adiciona rótulos com os valores originais
+            for i, (label, val) in enumerate(valores_originais.items()):
+                ax.text(
+                    i, valores_normalizados[label] + 2,
+                    f'{val if isinstance(val, int) else f"R$ {val:,.2f}"}',
+                    ha='center', fontsize=11, fontweight='bold'
                 )
 
-            # --- Gráfico de Linha (Comissões) ---
-            ax2 = ax1.twinx()
-            line = ax2.plot(
-                'Comissões', 
-                dados["total_comissoes"],
-                marker='o',
-                markersize=10,
-                linewidth=3,
-                color=palette['linha'],
-                alpha=0.8,
-                label=f'Comissões: R$ {dados["total_comissoes"]:,.2f}'
-            )
-            ax2.set_ylabel('Valor (R$)', color=palette['linha'])
-            ax2.tick_params(axis='y', labelcolor=palette['linha'])
-            
-            # --- Ajustes Visuais ---
-            plt.title(
-                'DESEMPENHO DE VENDAS\n',
-                fontsize=14,
-                pad=20,
-                fontweight='bold'
-            )
-            
-            # Unifica as legendas
-            lines_labels = [ax1.get_legend_handles_labels(), ax2.get_legend_handles_labels()]
-            lines, labels = [sum(l, []) for l in zip(*lines_labels)]
-            fig.legend(
-                lines, labels,
-                loc='upper center',
-                bbox_to_anchor=(0.5, 0.95),
-                ncol=2,
-                frameon=True
-            )
+            ax.set_title('Comparativo Normalizado de Desempenho', fontsize=14, fontweight='bold')
+            ax.set_ylabel('Percentual relativo (%)')
+            ax.set_ylim(0, 110)
 
-            # Grid e layout
-            ax1.grid(axis='y', linestyle='--', alpha=0.7)
             plt.tight_layout()
 
-            # --- Converter para Base64 ---
+            # Exporta como imagem base64
             buffer = io.BytesIO()
-            plt.savefig(
-                buffer, 
-                format='png', 
-                dpi=120, 
-                bbox_inches='tight',
-                facecolor='white'  # Fundo branco para sistemas modernos
-            )
+            plt.savefig(buffer, format='png', dpi=120, bbox_inches='tight', facecolor='white')
             plt.close(fig)
             buffer.seek(0)
-            
+
             return base64.b64encode(buffer.read()).decode('utf-8')
-            
+
         except Exception as e:
-            logger.error(f"Erro ao gerar gráfico: {str(e)}")
-            raise ValueError("Falha na geração da visualização")
+            logger.error(f"Erro ao gerar gráfico normalizado: {str(e)}")
+            raise ValueError("Falha na geração do gráfico")
+
+
+
 
 funcionario_service = FuncionarioService()

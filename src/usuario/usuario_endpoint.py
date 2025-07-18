@@ -1,9 +1,10 @@
-
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from src.core.session import SessionLocal
 from src.usuario.usuario_schema import UsuarioCreate, UsuarioRead, UsuarioUpdate
-from src.usuario.usuario_service import usuario_service # Importa a instância do serviço
+from src.usuario.usuario_service import usuario_service  # Importa o serviço de usuário
+from src.admin.admin_model import Admin
+from src.funcionario.funcionario_model import Funcionario
 from typing import List
 
 router = APIRouter(prefix="/usuarios", tags=["Usuários"])
@@ -47,38 +48,3 @@ def delete_usuario_api(usuario_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Usuário não encontrado.")
     return db_usuario
 
-from pydantic import BaseModel
-# Schema para login
-class UsuarioLogin(BaseModel):
-    email: str
-    senha: str
-
-# Novo endpoint de login
-@router.post("/login")
-def login_usuario_api(login: UsuarioLogin, db: Session = Depends(get_db)):
-    usuario = usuario_service.authenticate_usuario(db, login.email, login.senha)
-    if not usuario:
-        raise HTTPException(status_code=401, detail="Email ou senha inválidos.")
-
-    # Verifica se é admin
-    from src.admin.admin_model import Admin
-    admin = db.query(Admin).filter(Admin.usuario_id == usuario.id, Admin.is_admin == True).first()
-    # Verifica se é funcionario
-    from src.funcionario.funcionario_model import Funcionario
-    funcionario = db.query(Funcionario).filter(Funcionario.usuario_id == usuario.id).first()
-
-    tipo = None
-    if admin:
-        tipo = "admin"
-    elif funcionario:
-        tipo = "funcionario"
-   
-
-    # Retorna dados do usuário + tipo
-    return {
-        "id": usuario.id,
-        "nome": usuario.nome,
-        "cpf": usuario.cpf,
-        "email": usuario.email,
-        "tipo": tipo
-    }
